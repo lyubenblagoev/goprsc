@@ -3,8 +3,8 @@ package goprsc
 import "time"
 
 // DateTime represents a time that can be unmarshaled from a JSON string
-// formatted as "yyyy-MM-dd HH:mm:ss". All exported methods of time.Time
-// can be called on DateTime.
+// formatted as "yyyy-mm-ddThh:mm:ss+|-hhmm" (e.g. '2017-01-02T15:47:59+0100').
+// All exported methods of time.Time can be called on DateTime.
 type DateTime struct {
 	time.Time
 }
@@ -17,7 +17,7 @@ func (t DateTime) String() string {
 func (t *DateTime) UnmarshalJSON(data []byte) error {
 	str := string(data)
 	var err error
-	t.Time, err = time.Parse(`"2006-01-02 15:04:05"`, str)
+	t.Time, err = time.Parse(`"2006-01-02T15:04:05-0700"`, str)
 	return err
 }
 

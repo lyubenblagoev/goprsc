@@ -12,7 +12,7 @@ func TestDomain_List(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `[{"id":1,"created":"2016-07-18 14:16:25","updated":"2016-07-18 14:16:25","enabled":true,"name":"example.com"},{"id":2,"created":"2016-07-18 14:16:25","updated":"2016-07-18 14:16:25","enabled":true,"name":"example2.com"}]`)
+		fmt.Fprint(w, `[{"id":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example.com"},{"id":2,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example2.com"}]`)
 	})
 
 	_, err := client.Domains.List()
@@ -26,7 +26,7 @@ func TestDomain_Get(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains/example.com", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `{"id":1,"created":"2016-07-18 14:16:25","updated":"2016-07-18 14:16:25","enabled":true,"name":"example.com"}`)
+		fmt.Fprint(w, `{"id":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example.com"}`)
 	})
 
 	_, err := client.Domains.Get("example.com")

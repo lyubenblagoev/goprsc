@@ -12,7 +12,7 @@ func TestAccount_List(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains/example.com/accounts", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `[{"id":1,"username":"test","domain":"example.com","domainId":1,"created":"2016-07-18 14:16:25","updated":"2016-07-20 07:45:16","enabled":true}]`)
+		fmt.Fprint(w, `[{"id":1,"username":"test","domain":"example.com","domainId":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-20T07:45:16+0000","enabled":true}]`)
 	})
 
 	_, err := client.Accounts.List("example.com")
@@ -26,7 +26,7 @@ func TestAccount_Get(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains/example.com/accounts/test", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `{"id":1,"username":"test","domain":"example.com","domainId":1,"created":"2016-07-18 14:16:25","updated":"2016-07-20 07:45:16","enabled":true}`)
+		fmt.Fprint(w, `{"id":1,"username":"test","domain":"example.com","domainId":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-20T07:45:16+0000","enabled":true}`)
 	})
 
 	acc, err := client.Accounts.Get("example.com", "test")

@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	referenceDateTimeStr = `"2017-01-02 15:47:59"`
+	referenceDateTimeStr = `"2017-01-02T15:47:59+0100"`
 )
 
 var (
-	referenceDateTime = time.Date(2017, 01, 02, 15, 47, 59, 0, time.UTC)
+	referenceDateTime = time.Date(2017, 01, 02, 14, 47, 59, 0, time.UTC)
 )
 
 func TestDateTime_UnmarshalJSON(t *testing.T) {
