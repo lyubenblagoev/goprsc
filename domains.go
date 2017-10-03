@@ -32,7 +32,7 @@ type Domain struct {
 // DomainUpdateRequest represents a request for domain update
 type DomainUpdateRequest struct {
 	Name    string `json:"name,omitempty"`
-	Enabled bool   `json:"enabled,omitempty"`
+	Enabled bool   `json:"enabled"`
 }
 
 // List makes a GET request for all registered domains.

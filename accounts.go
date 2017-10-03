@@ -33,7 +33,7 @@ type AccountUpdateRequest struct {
 	Username        string `json:"username,omitempty"`
 	Password        string `json:"password,omitempty"`
 	ConfirmPassword string `json:"confirmPassword,omitempty"`
-	Enabled         bool   `json:"enabled,omitempty"`
+	Enabled         bool   `json:"enabled"`
 }
 
 // List makes a GET request for all registered accounts in the specified domain.
