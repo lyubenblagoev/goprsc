@@ -9,10 +9,10 @@ const domainsURL = "domains"
 // DomainService is an interface for managing domains with the Postfix REST Server API.
 type DomainService interface {
 	List() ([]Domain, error)
-	Get(string) (*Domain, error)
-	Create(string) error
-	Update(string, *DomainUpdateRequest) error
-	Delete(string) error
+	Get(name string) (*Domain, error)
+	Create(name string) error
+	Update(name string, req *DomainUpdateRequest) error
+	Delete(name string) error
 }
 
 // DomainServiceImpl handles communication with the domain related API.

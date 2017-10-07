@@ -6,10 +6,10 @@ import "net/http"
 // AccountService is an interface for managing accounts with the Postfix REST Server API.
 type AccountService interface {
 	List(domain string) ([]Account, error)
-	Get(domain string, username string) (*Account, error)
-	Create(string, string, string) error
-	Update(string, string, *AccountUpdateRequest) error
-	Delete(string, string) error
+	Get(domain, username string) (*Account, error)
+	Create(domain, username, password string) error
+	Update(domain, username string, req *AccountUpdateRequest) error
+	Delete(domain, username string) error
 }
 
 // AccountServiceImpl handles communication with the account related API.
