@@ -40,6 +40,9 @@ type Client struct {
 
 	// Accounts is the service used for communication with the accounts API.
 	Accounts AccountService
+
+	// Aliases is the service used for communication with the aliases API.
+	Aliases AliasService
 }
 
 // DefaultClient is the default Client that works with the default HTTP client and
@@ -62,6 +65,7 @@ func NewClient(httpClient *http.Client) *Client {
 	}
 	c.Domains = &DomainServiceImpl{client: c}
 	c.Accounts = &AccountServiceImpl{client: c}
+	c.Aliases = &AliasServiceImpl{client: c}
 
 	return c
 }
