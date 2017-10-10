@@ -28,7 +28,7 @@ type Account struct {
 	Updated  DateTime `json:"updated"`
 }
 
-// AccountUpdateRequest is a data structure that caries account update information
+// AccountUpdateRequest is a data structure that carries account update information
 type AccountUpdateRequest struct {
 	Username        string `json:"username,omitempty"`
 	Password        string `json:"password,omitempty"`

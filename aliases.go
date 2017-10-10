@@ -29,7 +29,7 @@ type Alias struct {
 	Updated DateTime `json:"updated"`
 }
 
-// AliasUpdateRequest caries alias update information.
+// AliasUpdateRequest carries alias update information.
 type AliasUpdateRequest struct {
 	Name    string `json:"alias"`
 	Email   string `json:"email"`
