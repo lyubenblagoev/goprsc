@@ -31,8 +31,8 @@ type Alias struct {
 
 // AliasUpdateRequest carries alias update information.
 type AliasUpdateRequest struct {
-	Name    string `json:"alias"`
-	Email   string `json:"email"`
+	Name    string `json:"alias,omitempty"`
+	Email   string `json:"email,omitempty"`
 	Enabled bool   `json:"enabled"`
 }
 
