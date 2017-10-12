@@ -37,7 +37,7 @@ type AliasUpdateRequest struct {
 }
 
 // List makes a GET request for all aliases for the given domain.
-func (s *AliasServiceImpl) List(domain string) ([]Alias, error) {
+func (s AliasServiceImpl) List(domain string) ([]Alias, error) {
 	req, err := s.client.NewRequest(http.MethodGet, getAliasesURL(domain), nil)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (s *AliasServiceImpl) List(domain string) ([]Alias, error) {
 }
 
 // Get retrieves information for an alias.
-func (s *AliasServiceImpl) Get(domain, alias string) (*Alias, error) {
+func (s AliasServiceImpl) Get(domain, alias string) (*Alias, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", getAliasesURL(domain), alias), nil)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (s *AliasServiceImpl) Get(domain, alias string) (*Alias, error) {
 }
 
 // Create makes a POST request to create a new alias.
-func (s *AliasServiceImpl) Create(domain, alias, email string) error {
+func (s AliasServiceImpl) Create(domain, alias, email string) error {
 	ur := &AliasUpdateRequest{
 		Name:    alias,
 		Email:   email,
@@ -86,7 +86,7 @@ func (s *AliasServiceImpl) Create(domain, alias, email string) error {
 }
 
 // Update makes a PUT request and updates the specified alias.
-func (s *AliasServiceImpl) Update(domain, alias string, ur *AliasUpdateRequest) error {
+func (s AliasServiceImpl) Update(domain, alias string, ur *AliasUpdateRequest) error {
 	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("%s/%s", getAliasesURL(domain), alias), ur)
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func (s *AliasServiceImpl) Update(domain, alias string, ur *AliasUpdateRequest) 
 }
 
 // Delete removes an alias.
-func (s *AliasServiceImpl) Delete(domain, alias string) error {
+func (s AliasServiceImpl) Delete(domain, alias string) error {
 	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s", getAliasesURL(domain), alias), nil)
 	if err != nil {
 		return err
