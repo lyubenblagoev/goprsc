@@ -17,8 +17,8 @@ func TestAlias_List(t *testing.T) {
 				"id": 1,
 				"alias": "contact",
 				"email": "info@example.com",
-				"created": "2016-07-11T08:42:31+0000",
-				"updated": "2016-07-21T14:57:07+0000",
+				"created": "2016-07-11T08:42:31+0000", "updated":
+				"2016-07-21T14:57:07+0000",
 				"enabled": true
 			}
 		]`)
@@ -34,7 +34,41 @@ func TestAlias_Get(t *testing.T) {
 	setup()
 	defer shutdown()
 
+	expectedEmail := "info@example.com"
+
 	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `[{
+			"id": 1,
+			"alias": "contact",
+			"email": "%s",
+			"created": "2016-07-11T08:42:31+0000",
+			"updated": "2016-07-21T14:57:07+0000",
+			"enabled": true
+		}]`, expectedEmail)
+	})
+
+	aliases, err := client.Aliases.Get("example.com", "contact")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(aliases) != 1 {
+		t.Fatalf("expected: 1 alias, got: %s aliases", len(aliases))
+	}
+
+	alias := aliases[0]
+	if alias.Email != expectedEmail {
+		t.Fatalf("expected: %v, got: %v", expectedEmail, alias.Email)
+	}
+}
+
+func TestAlias_GetSpecificAlias(t *testing.T) {
+	setup()
+	defer shutdown()
+
+	expectedEmail := "info@example.com"
+
+	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact/info@example.com", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `{
 			"id": 1,
 			"alias": "contact",
@@ -45,13 +79,13 @@ func TestAlias_Get(t *testing.T) {
 		}`)
 	})
 
-	alias, err := client.Aliases.Get("example.com", "contact")
+	a, err := client.Aliases.GetForEmail("example.com", "contact", expectedEmail)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if alias.Email != "info@example.com" {
-		t.Fatalf("expected: %v, got: %v", "test", alias.Name)
+	if a.Email != expectedEmail {
+		t.Fatalf("expected: %v, got: %v", expectedEmail, a.Email)
 	}
 }
 
@@ -93,7 +127,7 @@ func TestAlias_Update(t *testing.T) {
 		Email: "info@example.com",
 	}
 
-	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact/info@example.com", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
 			t.Fatalf("Expected method: %v, got: %v", http.MethodPut, r.Method)
 		}
@@ -109,7 +143,7 @@ func TestAlias_Update(t *testing.T) {
 		}
 	})
 
-	if err := client.Aliases.Update("example.com", "contact", req); err != nil {
+	if err := client.Aliases.Update("example.com", "contact", "info@example.com", req); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -118,13 +152,13 @@ func TestAlias_Delete(t *testing.T) {
 	setup()
 	defer shutdown()
 
-	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact/info@example.com", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodDelete {
 			t.Fatalf("expected method: %v, got: %v", http.MethodDelete, r.Method)
 		}
 	})
 
-	if err := client.Aliases.Delete("example.com", "contact"); err != nil {
+	if err := client.Aliases.Delete("example.com", "contact", "info@example.com"); err != nil {
 		t.Fatal(err)
 	}
 }
