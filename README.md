@@ -1,8 +1,8 @@
 # Goprsc
 
-Goprsc is a GO client library for accessing the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) V1 API. 
+Goprsc is a GO client library for accessing the [Postfix Rest Server][1] V1 API. 
 
-Goprsc is a work in progress. Currently it supports the domain, account and alias APIs.
+Goprsc currently implements all [Postfix Rest Server][1] APIs (domains, accounts, aliases, automatic sender and recipient BCC).
 
 ## Usage
 
@@ -10,7 +10,7 @@ Goprsc is a work in progress. Currently it supports the domain, account and alia
 import "github.com/lyubenblagoev/goprsc"
 ```
 
-Create a new client and use the exposed services to access different parts of the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) API.
+Create a new client and use the exposed services to access different parts of the [Postfix Rest Server][1] API.
 
 Use the DefaultClient:
 
@@ -67,3 +67,8 @@ if err != nil {
 ```
 
 Similarly you can manage other entities.
+
+For more usage examples, you may wish to take a look at [emailctl][2] (a CLI for the [Postfix Rest Server][1]).
+
+[1]: https://github.com/lyubenblagoev/postfix-rest-server "Postfix Rest Server"
+[2]: https://github.com/lyubenblagoev/emailctl "emailctl"
