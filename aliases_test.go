@@ -53,7 +53,7 @@ func TestAlias_Get(t *testing.T) {
 	}
 
 	if len(aliases) != 1 {
-		t.Fatalf("expected: 1 alias, got: %s aliases", len(aliases))
+		t.Fatalf("expected: 1 alias, got: %d aliases", len(aliases))
 	}
 
 	alias := aliases[0]
