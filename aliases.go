@@ -69,6 +69,7 @@ func (s AliasServiceImpl) Get(domain, alias string) ([]Alias, error) {
 	return aliases, err
 }
 
+// GetForEmail retrieves an alias for specific account and target email.
 func (s AliasServiceImpl) GetForEmail(domain, alias, email string) (*Alias, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s/%s", getAliasesURL(domain), alias, email), nil)
 	if err != nil {
