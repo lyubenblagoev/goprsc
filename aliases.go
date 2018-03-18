@@ -5,20 +5,8 @@ import (
 	"net/http"
 )
 
-// AliasService is an interface for managing aliases in the Postfix REST Server.
-type AliasService interface {
-	List(domain string) ([]Alias, error)
-	Get(domain, alias string) ([]Alias, error)
-	GetForEmail(domain, alias, email string) (*Alias, error)
-	Create(domain, alias, email string) error
-	Update(domain, alias, email string, ur *AliasUpdateRequest) error
-	Delete(domain, alias, email string) error
-}
-
-// AliasServiceImpl handles communication with the alias related API.
-type AliasServiceImpl struct {
-	client *Client
-}
+// AliasService handles communication with the alias APIs in the Postfix REST Server.
+type AliasService service
 
 // Alias is an email address alias.
 type Alias struct {
@@ -38,7 +26,7 @@ type AliasUpdateRequest struct {
 }
 
 // List makes a GET request for all aliases for the given domain.
-func (s AliasServiceImpl) List(domain string) ([]Alias, error) {
+func (s *AliasService) List(domain string) ([]Alias, error) {
 	req, err := s.client.NewRequest(http.MethodGet, getAliasesURL(domain), nil)
 	if err != nil {
 		return nil, err
@@ -54,7 +42,7 @@ func (s AliasServiceImpl) List(domain string) ([]Alias, error) {
 }
 
 // Get retrieves information for an alias.
-func (s AliasServiceImpl) Get(domain, alias string) ([]Alias, error) {
+func (s *AliasService) Get(domain, alias string) ([]Alias, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", getAliasesURL(domain), alias), nil)
 	if err != nil {
 		return nil, err
@@ -70,7 +58,7 @@ func (s AliasServiceImpl) Get(domain, alias string) ([]Alias, error) {
 }
 
 // GetForEmail retrieves an alias for specific account and target email.
-func (s AliasServiceImpl) GetForEmail(domain, alias, email string) (*Alias, error) {
+func (s *AliasService) GetForEmail(domain, alias, email string) (*Alias, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s/%s", getAliasesURL(domain), alias, email), nil)
 	if err != nil {
 		return nil, err
@@ -86,7 +74,7 @@ func (s AliasServiceImpl) GetForEmail(domain, alias, email string) (*Alias, erro
 }
 
 // Create makes a POST request to create a new alias.
-func (s AliasServiceImpl) Create(domain, alias, email string) error {
+func (s *AliasService) Create(domain, alias, email string) error {
 	ur := &AliasUpdateRequest{
 		Name:    alias,
 		Email:   email,
@@ -103,7 +91,7 @@ func (s AliasServiceImpl) Create(domain, alias, email string) error {
 }
 
 // Update makes a PUT request and updates the specified alias.
-func (s AliasServiceImpl) Update(domain, alias, email string, ur *AliasUpdateRequest) error {
+func (s *AliasService) Update(domain, alias, email string, ur *AliasUpdateRequest) error {
 	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("%s/%s/%s", getAliasesURL(domain), alias, email), ur)
 	if err != nil {
 		return err
@@ -114,7 +102,7 @@ func (s AliasServiceImpl) Update(domain, alias, email string, ur *AliasUpdateReq
 }
 
 // Delete removes an alias.
-func (s AliasServiceImpl) Delete(domain, alias, email string) error {
+func (s *AliasService) Delete(domain, alias, email string) error {
 	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("%s/%s/%s", getAliasesURL(domain), alias, email), nil)
 	if err != nil {
 		return err

@@ -6,19 +6,8 @@ import "net/http"
 // domainsURL is the base address for all domain-related urls.
 const domainsURL = "domains"
 
-// DomainService is an interface for managing domains with the Postfix REST Server API.
-type DomainService interface {
-	List() ([]Domain, error)
-	Get(name string) (*Domain, error)
-	Create(name string) error
-	Update(name string, req *DomainUpdateRequest) error
-	Delete(name string) error
-}
-
-// DomainServiceImpl handles communication with the domain related API.
-type DomainServiceImpl struct {
-	client *Client
-}
+// DomainService handles communiation with the domain APIs in the Postfix REST Server.
+type DomainService service
 
 // Domain represents a domain (e.g. example.com)
 type Domain struct {
@@ -36,7 +25,7 @@ type DomainUpdateRequest struct {
 }
 
 // List makes a GET request for all registered domains.
-func (s DomainServiceImpl) List() ([]Domain, error) {
+func (s *DomainService) List() ([]Domain, error) {
 	req, err := s.client.NewRequest(http.MethodGet, domainsURL, nil)
 	if err != nil {
 		return nil, err
@@ -51,7 +40,7 @@ func (s DomainServiceImpl) List() ([]Domain, error) {
 }
 
 // Get makes a GET request for a specific domain specified with the domain parameter.
-func (s DomainServiceImpl) Get(domain string) (*Domain, error) {
+func (s *DomainService) Get(domain string) (*Domain, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%v/%v", domainsURL, domain), nil)
 	if err != nil {
 		return nil, err
@@ -65,7 +54,7 @@ func (s DomainServiceImpl) Get(domain string) (*Domain, error) {
 }
 
 // Create makes a POST request to the API to create a new domain.
-func (s DomainServiceImpl) Create(domain string) error {
+func (s *DomainService) Create(domain string) error {
 	ur := &DomainUpdateRequest{
 		Name:    domain,
 		Enabled: true,
@@ -81,7 +70,7 @@ func (s DomainServiceImpl) Create(domain string) error {
 }
 
 // Update makes a PUT request to update domain parameters
-func (s DomainServiceImpl) Update(name string, updateRequest *DomainUpdateRequest) error {
+func (s *DomainService) Update(name string, updateRequest *DomainUpdateRequest) error {
 	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("%v/%v", domainsURL, name), updateRequest)
 	if err != nil {
 		return nil
@@ -91,7 +80,7 @@ func (s DomainServiceImpl) Update(name string, updateRequest *DomainUpdateReques
 }
 
 // Delete makes a DELETE request to the API to delete the specified domain
-func (s DomainServiceImpl) Delete(name string) error {
+func (s *DomainService) Delete(name string) error {
 	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("%v/%v", domainsURL, name), nil)
 	if err != nil {
 		return err

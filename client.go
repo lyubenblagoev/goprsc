@@ -36,19 +36,23 @@ type Client struct {
 	UserAgent string
 
 	// Domains is the service used for communication with the domains API.
-	Domains DomainService
+	Domains *DomainService
 
 	// Accounts is the service used for communication with the accounts API.
-	Accounts AccountService
+	Accounts *AccountService
 
 	// Aliases is the service used for communication with the aliases API.
-	Aliases AliasService
+	Aliases *AliasService
 
 	// OutputBccs is the service used for communication with the output BCC API.
-	OutputBccs BccService
+	OutputBccs *OutgoingBccService
 
 	// InputBccs is the service used for communication with the input BCC API.
-	InputBccs BccService
+	InputBccs *IncommingBccService
+}
+
+type service struct {
+	client *Client
 }
 
 // DefaultClient is the default Client that works with the default HTTP client and
@@ -69,11 +73,13 @@ func NewClient(httpClient *http.Client) *Client {
 		Port:      defaultPort,
 		UserAgent: userAgent,
 	}
-	c.Domains = &DomainServiceImpl{client: c}
-	c.Accounts = &AccountServiceImpl{client: c}
-	c.Aliases = &AliasServiceImpl{client: c}
-	c.OutputBccs = NewOutputBccService(c)
-	c.InputBccs = NewInputBccService(c)
+	s := service{client: c} // Reuse a single struct instead of allocating one for each service
+	c.Domains = (*DomainService)(&s)
+	c.Accounts = (*AccountService)(&s)
+	c.Aliases = (*AliasService)(&s)
+	// Allocate separate structs for the bcc services as they have specific state
+	c.OutputBccs = NewOutgoingBccService(s.client)
+	c.InputBccs = NewIncommingBccService(s.client)
 
 	return c
 }

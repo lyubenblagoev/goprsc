@@ -3,19 +3,8 @@ package goprsc
 import "fmt"
 import "net/http"
 
-// AccountService is an interface for managing accounts with the Postfix REST Server API.
-type AccountService interface {
-	List(domain string) ([]Account, error)
-	Get(domain, username string) (*Account, error)
-	Create(domain, username, password string) error
-	Update(domain, username string, req *AccountUpdateRequest) error
-	Delete(domain, username string) error
-}
-
-// AccountServiceImpl handles communication with the account related API.
-type AccountServiceImpl struct {
-	client *Client
-}
+// AccountService handles communication with the account APIs in the Postfix REST Server.
+type AccountService service
 
 // Account is an instance of a account (an email address)
 type Account struct {
@@ -37,7 +26,7 @@ type AccountUpdateRequest struct {
 }
 
 // List makes a GET request for all registered accounts in the specified domain.
-func (s AccountServiceImpl) List(domain string) ([]Account, error) {
+func (s *AccountService) List(domain string) ([]Account, error) {
 	req, err := s.client.NewRequest(http.MethodGet, getAccountsURL(domain), nil)
 	if err != nil {
 		return nil, err
@@ -53,7 +42,7 @@ func (s AccountServiceImpl) List(domain string) ([]Account, error) {
 }
 
 // Get returns the account with the given username on the given domain.
-func (s AccountServiceImpl) Get(domain, username string) (*Account, error) {
+func (s *AccountService) Get(domain, username string) (*Account, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%v/%v", getAccountsURL(domain), username), nil)
 	if err != nil {
 		return nil, err
@@ -69,7 +58,7 @@ func (s AccountServiceImpl) Get(domain, username string) (*Account, error) {
 }
 
 // Create creates a new account with the given username in the given domain.
-func (s AccountServiceImpl) Create(domain, username, password string) error {
+func (s *AccountService) Create(domain, username, password string) error {
 	ur := &AccountUpdateRequest{
 		Username:        username,
 		Password:        password,
@@ -87,7 +76,7 @@ func (s AccountServiceImpl) Create(domain, username, password string) error {
 }
 
 // Update updates the specified account.
-func (s AccountServiceImpl) Update(domain, username string, updateRequest *AccountUpdateRequest) error {
+func (s *AccountService) Update(domain, username string, updateRequest *AccountUpdateRequest) error {
 	req, err := s.client.NewRequest(http.MethodPut, fmt.Sprintf("%v/%v", getAccountsURL(domain), username), updateRequest)
 	if err != nil {
 		return err
@@ -98,7 +87,7 @@ func (s AccountServiceImpl) Update(domain, username string, updateRequest *Accou
 }
 
 // Delete removes the account specified with the given domain and username
-func (s AccountServiceImpl) Delete(domain, username string) error {
+func (s *AccountService) Delete(domain, username string) error {
 	req, err := s.client.NewRequest(http.MethodDelete, fmt.Sprintf("%v/%v", getAccountsURL(domain), username), nil)
 	if err != nil {
 		return err

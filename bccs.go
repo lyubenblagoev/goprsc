@@ -10,12 +10,53 @@ const (
 	outputBccType = "outgoing"
 )
 
-// BccService is an interface for managing BCCs with the Postfix REST Server API.
 type BccService interface {
+	// Get makes a GET request and fetches the specified BCC.
 	Get(domain, account string) (*Bcc, error)
+
+	// Create makes a POST request to create a new BCC.
 	Create(domain, account, email string) error
+
+	// Update makes a PUT request to update the specified BCC.
 	Update(domain, account string, ur *BccUpdateRequest) error
+
+	// Delete removes a BCC.
 	Delete(domain, account string) error
+}
+
+type bccServiceImpl struct {
+	client  *Client
+	bccType string
+}
+
+// IncommingBccService handles communication with the incomming BCC APIs in the Postfix REST Server.
+type IncommingBccService struct {
+	*bccServiceImpl
+}
+
+// NewIncommingBccService creates a new IncommingBccService instance.
+func NewIncommingBccService(c *Client) *IncommingBccService {
+	return &IncommingBccService{
+		bccServiceImpl: &bccServiceImpl{
+			client:  c,
+			bccType: inputBccType,
+		},
+	}
+}
+
+// OutgoingBccService handles communication with the outgoing BCC APIs in the Postfix REST Server.
+type OutgoingBccService struct {
+	*bccServiceImpl
+}
+
+// NewOutgoingBccService creates a new OutgoingBccService instance.
+func NewOutgoingBccService(c *Client) *OutgoingBccService {
+	return &OutgoingBccService{
+		bccServiceImpl: &bccServiceImpl{
+			client:  c,
+			bccType: outputBccType,
+		},
+	}
 }
 
 // Bcc is a blind carbon copy for specific account
@@ -34,45 +75,8 @@ type BccUpdateRequest struct {
 	Enabled bool   `json:"enabled"`
 }
 
-// bccServiceImpl is an internal implementation that is wrapped by more
-// concrete BccService implementations.
-type bccServiceImpl struct {
-	client  *Client
-	bccType string
-}
-
-// OutputBccServiceImpl handles communication with the output BCC API.
-type OutputBccServiceImpl struct {
-	*bccServiceImpl
-}
-
-// NewOutputBccService creates a new OutputBccServiceImpl instance.
-func NewOutputBccService(client *Client) *OutputBccServiceImpl {
-	return &OutputBccServiceImpl{
-		bccServiceImpl: &bccServiceImpl{
-			client:  client,
-			bccType: outputBccType,
-		},
-	}
-}
-
-// InputBccServiceImpl handles communication with the input BCC API.
-type InputBccServiceImpl struct {
-	*bccServiceImpl
-}
-
-// NewInputBccService creates a new InputBccServiceImpl instance.
-func NewInputBccService(client *Client) *InputBccServiceImpl {
-	return &InputBccServiceImpl{
-		bccServiceImpl: &bccServiceImpl{
-			client:  client,
-			bccType: inputBccType,
-		},
-	}
-}
-
 // Get makes a GET request and fetches the specified BCC.
-func (s bccServiceImpl) Get(domain, account string) (*Bcc, error) {
+func (s *bccServiceImpl) Get(domain, account string) (*Bcc, error) {
 	req, err := s.client.NewRequest(http.MethodGet, s.getBccsURL(domain, account), nil)
 	if err != nil {
 		return nil, err
@@ -88,7 +92,7 @@ func (s bccServiceImpl) Get(domain, account string) (*Bcc, error) {
 }
 
 // Create makes a POST request to create a new BCC.
-func (s bccServiceImpl) Create(domain, account, email string) error {
+func (s *bccServiceImpl) Create(domain, account, email string) error {
 	ur := &BccUpdateRequest{
 		Email:   email,
 		Enabled: true,
@@ -104,7 +108,7 @@ func (s bccServiceImpl) Create(domain, account, email string) error {
 }
 
 // Update makes a PUT request to update the specified BCC.
-func (s bccServiceImpl) Update(domain, account string, ur *BccUpdateRequest) error {
+func (s *bccServiceImpl) Update(domain, account string, ur *BccUpdateRequest) error {
 	req, err := s.client.NewRequest(http.MethodPut, s.getBccsURL(domain, account), ur)
 	if err != nil {
 		return err
@@ -115,7 +119,7 @@ func (s bccServiceImpl) Update(domain, account string, ur *BccUpdateRequest) err
 }
 
 // Delete removes a BCC.
-func (s bccServiceImpl) Delete(domain, account string) error {
+func (s *bccServiceImpl) Delete(domain, account string) error {
 	req, err := s.client.NewRequest(http.MethodDelete, s.getBccsURL(domain, account), nil)
 	if err != nil {
 		return err
@@ -125,6 +129,6 @@ func (s bccServiceImpl) Delete(domain, account string) error {
 	return err
 }
 
-func (s bccServiceImpl) getBccsURL(domain, username string) string {
+func (s *bccServiceImpl) getBccsURL(domain, username string) string {
 	return fmt.Sprintf("%s/%s/accounts/%s/bccs/%s", domainsURL, domain, username, s.bccType)
 }
