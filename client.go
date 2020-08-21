@@ -48,7 +48,7 @@ type Client struct {
 	OutputBccs *OutgoingBccService
 
 	// InputBccs is the service used for communication with the input BCC API.
-	InputBccs *IncommingBccService
+	InputBccs *IncomingBccService
 }
 
 type service struct {
@@ -79,7 +79,7 @@ func NewClient(httpClient *http.Client) *Client {
 	c.Aliases = (*AliasService)(&s)
 	// Allocate separate structs for the bcc services as they have specific state
 	c.OutputBccs = NewOutgoingBccService(s.client)
-	c.InputBccs = NewIncommingBccService(s.client)
+	c.InputBccs = NewIncomingBccService(s.client)
 
 	return c
 }

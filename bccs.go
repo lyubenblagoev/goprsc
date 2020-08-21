@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	inputBccType  = "incomming"
+	inputBccType  = "incoming"
 	outputBccType = "outgoing"
 )
 
@@ -29,14 +29,14 @@ type bccServiceImpl struct {
 	bccType string
 }
 
-// IncommingBccService handles communication with the incomming BCC APIs in the Postfix REST Server.
-type IncommingBccService struct {
+// IncomingBccService handles communication with the incoming BCC APIs in the Postfix REST Server.
+type IncomingBccService struct {
 	*bccServiceImpl
 }
 
-// NewIncommingBccService creates a new IncommingBccService instance.
-func NewIncommingBccService(c *Client) *IncommingBccService {
-	return &IncommingBccService{
+// NewIncomingBccService creates a new IncomingBccService instance.
+func NewIncomingBccService(c *Client) *IncomingBccService {
+	return &IncomingBccService{
 		bccServiceImpl: &bccServiceImpl{
 			client:  c,
 			bccType: inputBccType,

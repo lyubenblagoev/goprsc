@@ -11,7 +11,7 @@ func TestBcc_Get(t *testing.T) {
 	setup()
 	defer shutdown()
 
-	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incomming", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incoming", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `{"id":1, "accountId": 1, "email": "bcc@example.com","created":"2016-07-18T14:16:25+0000","updated":"2016-07-20T07:45:16+0000","enabled":true}`)
 	})
 
@@ -29,7 +29,7 @@ func TestBcc_Create(t *testing.T) {
 	setup()
 	defer shutdown()
 
-	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incomming", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incoming", func(w http.ResponseWriter, r *http.Request) {
 		var ur BccUpdateRequest
 
 		if r.Method != http.MethodPost {
@@ -54,7 +54,7 @@ func TestBcc_Update(t *testing.T) {
 	setup()
 	defer shutdown()
 
-	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incomming", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incoming", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPut {
 			t.Fatalf("Expected method: %v, got: %v", http.MethodPut, r.Method)
 		}
@@ -79,7 +79,7 @@ func TestBcc_Delete(t *testing.T) {
 	setup()
 	defer shutdown()
 
-	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incomming", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/api/v1/domains/example.com/accounts/test/bccs/incoming", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodDelete {
 			t.Fatalf("expected method: %v, got: %v", http.MethodDelete, r.Method)
 		}
