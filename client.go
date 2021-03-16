@@ -15,7 +15,7 @@ const (
 	defaultHost     = "localhost"
 	defaultPort     = "8080"
 	defaultAPIPath  = "api/v1/"
-	libraryVersion  = "0.1.0"
+	libraryVersion  = "0.2.0"
 	userAgent       = "goprsc/" + libraryVersion + " (" + runtime.GOOS + " " + runtime.GOARCH + ")"
 	mediaType       = "application/json"
 )
