@@ -301,5 +301,11 @@ type ErrorResponse struct {
 }
 
 func (e ErrorResponse) Error() string {
-	return fmt.Sprintf("%v %v %v", e.Method, e.Message, e.Path)
+	if len(e.Method) > 0 {
+		return fmt.Sprintf("%v %v %v", e.Method, e.Message, e.Path)
+	} else if len(e.Message) > 0 {
+		return fmt.Sprintf("%v", e.Message)
+	} else {
+		return fmt.Sprintln("Unknown error")
+	}
 }
