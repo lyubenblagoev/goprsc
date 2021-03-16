@@ -35,6 +35,18 @@ type Client struct {
 	// UserAgent is the client user agent
 	UserAgent string
 
+	// Login represents the username of the logged in user
+	Login string
+
+	// The authentication token
+	AuthToken string
+
+	// The refresh token for retrieving new authentication token
+	RefreshToken string
+
+	// Auth is the service used for communication with the authentication API.
+	Auth *AuthService
+
 	// Domains is the service used for communication with the domains API.
 	Domains *DomainService
 
@@ -53,6 +65,12 @@ type Client struct {
 
 type service struct {
 	client *Client
+}
+
+// RefreshTokenRequest represents a request for retrieving a new access token
+type RefreshTokenRequest struct {
+	Login        string `json:"login"`
+	RefreshToken string `json:"refreshToken"`
 }
 
 // DefaultClient is the default Client that works with the default HTTP client and
@@ -74,6 +92,7 @@ func NewClient(httpClient *http.Client) *Client {
 		UserAgent: userAgent,
 	}
 	s := service{client: c} // Reuse a single struct instead of allocating one for each service
+	c.Auth = (*AuthService)(&s)
 	c.Domains = (*DomainService)(&s)
 	c.Accounts = (*AccountService)(&s)
 	c.Aliases = (*AliasService)(&s)
@@ -142,8 +161,18 @@ func UserAgentOption(userAgent string) ClientOption {
 	}
 }
 
+// AuthOption is a client option for setting the authentication tokens.
+func AuthOption(login, authToken, refreshToken string) ClientOption {
+	return func(c *Client) error {
+		c.Login = login
+		c.AuthToken = authToken
+		c.RefreshToken = refreshToken
+		return nil
+	}
+}
+
 // NewRequest creates an API request. An URL relative to the API version path must be provided in urlStr.
-func (c Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+func (c *Client) NewRequest(method, urlStr string, body interface{}) (*http.Request, error) {
 	rurl, err := url.Parse(urlStr)
 	if err != nil {
 		return nil, err
@@ -172,16 +201,29 @@ func (c Client) NewRequest(method, urlStr string, body interface{}) (*http.Reque
 	req.Header.Add("Content-Type", mediaType)
 	req.Header.Add("Accept", mediaType)
 	req.Header.Add("User-Agent", userAgent)
+	if len(c.AuthToken) > 0 {
+		req.Header.Add("Authorization", "Bearer "+c.AuthToken)
+	}
 
 	return req, nil
 }
 
 // Do sends a request and returns an API response. The respose is JSON decoded and stored in the value
 // pointed to by v.
-func (c Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode == http.StatusUnauthorized && len(req.Header.Get("X-GOPRSC-Refresh")) == 0 && len(c.RefreshToken) > 0 {
+		authResponse, err := c.refreshTokens()
+		if err != nil {
+			return nil, err
+		}
+		// Resend the original request using the new authentication token
+		req.Header.Set("Authorization", "Bearer "+authResponse.AuthToken)
+		resp, err = c.client.Do(req)
 	}
 
 	if err := checkResponse(resp); err != nil {
@@ -197,9 +239,38 @@ func (c Client) Do(req *http.Request, v interface{}) (*http.Response, error) {
 	return resp, err
 }
 
+func (c *Client) refreshTokens() (*AuthResponse, error) {
+	c.AuthToken = ""
+	rr := &RefreshTokenRequest{
+		Login:        c.Login,
+		RefreshToken: c.RefreshToken,
+	}
+	refreshRequest, err := c.NewRequest(http.MethodPost, "auth/refresh-token", rr)
+	if err != nil {
+		return nil, err
+	}
+	refreshRequest.Header.Add("X-GOPRSC-Refresh", "1")
+	authResponse := &AuthResponse{}
+	_, err = c.Do(refreshRequest, &authResponse)
+	if err != nil {
+		return nil, err
+	}
+	c.AuthToken = authResponse.AuthToken
+	c.RefreshToken = authResponse.RefreshToken
+	return authResponse, nil
+}
+
 func checkResponse(response *http.Response) error {
 	if sc := response.StatusCode; sc >= 200 && sc <= 299 {
 		return nil
+	}
+
+	if sc := response.StatusCode; sc == http.StatusUnauthorized || sc == http.StatusForbidden {
+		unauthorized := &ErrorResponse{
+			Response: response,
+			Message:  "Unauthorized. Please log in",
+		}
+		return unauthorized
 	}
 
 	errResponse := &ErrorResponse{Response: response}
