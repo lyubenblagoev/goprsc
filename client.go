@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"runtime"
 )
 
 const (
@@ -15,7 +16,7 @@ const (
 	defaultPort     = "8080"
 	defaultAPIPath  = "api/v1/"
 	libraryVersion  = "0.1.0"
-	userAgent       = "goprsc/" + libraryVersion
+	userAgent       = "goprsc/" + libraryVersion + " (" + runtime.GOOS + " " + runtime.GOARCH + ")"
 	mediaType       = "application/json"
 )
 
