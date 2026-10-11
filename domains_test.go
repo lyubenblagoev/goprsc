@@ -12,12 +12,32 @@ func TestDomain_List(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `[{"id":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example.com"},{"id":2,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example2.com"}]`)
+		fmt.Fprint(w, `{"items":[{"id":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example.com"},{"id":2,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-18T14:16:25+0000","enabled":true,"name":"example2.com"}],"page":1,"pageSize":50,"total":2}`)
 	})
 
-	_, err := client.Domains.List()
+	domains, err := client.Domains.List()
 	if err != nil {
 		t.Fatal(err)
+	}
+	if len(domains.Items) != 2 || domains.Page != 1 || domains.PageSize != 50 || domains.Total != 2 {
+		t.Fatalf("unexpected domain page: %+v", domains)
+	}
+}
+
+func TestDomain_ListEmptyPage(t *testing.T) {
+	setup()
+	defer shutdown()
+
+	mux.HandleFunc("/api/v1/domains", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"items":[],"page":1,"pageSize":50,"total":0}`)
+	})
+
+	domains, err := client.Domains.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if domains.Items == nil || len(domains.Items) != 0 || domains.Page != 1 || domains.PageSize != 50 || domains.Total != 0 {
+		t.Fatalf("unexpected empty domain page: %+v", domains)
 	}
 }
 

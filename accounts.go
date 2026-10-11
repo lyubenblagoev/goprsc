@@ -26,19 +26,23 @@ type AccountUpdateRequest struct {
 }
 
 // List makes a GET request for all registered accounts in the specified domain.
-func (s *AccountService) List(domain string) ([]Account, error) {
-	req, err := s.client.NewRequest(http.MethodGet, getAccountsURL(domain), nil)
+func (s *AccountService) List(domain string, options ...PaginationOptions) (*PaginatedAccounts, error) {
+	requestURL, err := paginationURL(getAccountsURL(domain), options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := s.client.NewRequest(http.MethodGet, requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var accounts []Account
+	var accounts PaginatedAccounts
 	_, err = s.client.Do(req, &accounts)
 	if err != nil {
 		return nil, err
 	}
 
-	return accounts, err
+	return &accounts, nil
 }
 
 // Get returns the account with the given username on the given domain.

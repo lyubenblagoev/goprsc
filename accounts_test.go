@@ -12,12 +12,15 @@ func TestAccount_List(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains/example.com/accounts", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `[{"id":1,"username":"test","domain":"example.com","domainId":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-20T07:45:16+0000","enabled":true}]`)
+		fmt.Fprint(w, `{"items":[{"id":1,"username":"test","domain":"example.com","domainId":1,"created":"2016-07-18T14:16:25+0000","updated":"2016-07-20T07:45:16+0000","enabled":true}],"page":1,"pageSize":50,"total":1}`)
 	})
 
-	_, err := client.Accounts.List("example.com")
+	accounts, err := client.Accounts.List("example.com")
 	if err != nil {
 		t.Fatal("Failed to list accounts for domain 'example.com'")
+	}
+	if len(accounts.Items) != 1 || accounts.Page != 1 || accounts.PageSize != 50 || accounts.Total != 1 {
+		t.Fatalf("unexpected account page: %+v", accounts)
 	}
 }
 

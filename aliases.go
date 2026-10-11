@@ -26,35 +26,43 @@ type AliasUpdateRequest struct {
 }
 
 // List makes a GET request for all aliases for the given domain.
-func (s *AliasService) List(domain string) ([]Alias, error) {
-	req, err := s.client.NewRequest(http.MethodGet, getAliasesURL(domain), nil)
+func (s *AliasService) List(domain string, options ...PaginationOptions) (*PaginatedAliases, error) {
+	requestURL, err := paginationURL(getAliasesURL(domain), options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := s.client.NewRequest(http.MethodGet, requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var aliases []Alias
+	var aliases PaginatedAliases
 	_, err = s.client.Do(req, &aliases)
 	if err != nil {
 		return nil, err
 	}
 
-	return aliases, err
+	return &aliases, nil
 }
 
 // Get retrieves information for an alias.
-func (s *AliasService) Get(domain, alias string) ([]Alias, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", getAliasesURL(domain), alias), nil)
+func (s *AliasService) Get(domain, alias string, options ...PaginationOptions) (*PaginatedAliases, error) {
+	requestURL, err := paginationURL(fmt.Sprintf("%s/%s", getAliasesURL(domain), alias), options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := s.client.NewRequest(http.MethodGet, requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var aliases []Alias
+	var aliases PaginatedAliases
 	_, err = s.client.Do(req, &aliases)
 	if err != nil {
 		return nil, err
 	}
 
-	return aliases, err
+	return &aliases, nil
 }
 
 // GetForEmail retrieves an alias for specific account and target email.

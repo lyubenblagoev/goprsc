@@ -25,18 +25,22 @@ type DomainUpdateRequest struct {
 }
 
 // List makes a GET request for all registered domains.
-func (s *DomainService) List() ([]Domain, error) {
-	req, err := s.client.NewRequest(http.MethodGet, domainsURL, nil)
+func (s *DomainService) List(options ...PaginationOptions) (*PaginatedDomains, error) {
+	requestURL, err := paginationURL(domainsURL, options)
+	if err != nil {
+		return nil, err
+	}
+	req, err := s.client.NewRequest(http.MethodGet, requestURL, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var domains []Domain
+	var domains PaginatedDomains
 	if _, err := s.client.Do(req, &domains); err != nil {
 		return nil, err
 	}
 
-	return domains, err
+	return &domains, nil
 }
 
 // Get makes a GET request for a specific domain specified with the domain parameter.

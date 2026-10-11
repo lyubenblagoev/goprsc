@@ -12,7 +12,7 @@ func TestAlias_List(t *testing.T) {
 	defer shutdown()
 
 	mux.HandleFunc("/api/v1/domains/example.com/aliases", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, `[
+		fmt.Fprint(w, `{"items":[
 			{
 				"id": 1,
 				"alias": "contact",
@@ -21,12 +21,15 @@ func TestAlias_List(t *testing.T) {
 				"2016-07-21T14:57:07+0000",
 				"enabled": true
 			}
-		]`)
+		],"page":1,"pageSize":50,"total":1}`)
 	})
 
-	_, err := client.Aliases.List("example.com")
+	aliases, err := client.Aliases.List("example.com")
 	if err != nil {
 		t.Fatal("Failed to list aliases for domain 'example.com'")
+	}
+	if len(aliases.Items) != 1 || aliases.Page != 1 || aliases.PageSize != 50 || aliases.Total != 1 {
+		t.Fatalf("unexpected alias page: %+v", aliases)
 	}
 }
 
@@ -37,14 +40,14 @@ func TestAlias_Get(t *testing.T) {
 	expectedEmail := "info@example.com"
 
 	mux.HandleFunc("/api/v1/domains/example.com/aliases/contact", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, `[{
+		fmt.Fprintf(w, `{"items":[{
 			"id": 1,
 			"alias": "contact",
 			"email": "%s",
 			"created": "2016-07-11T08:42:31+0000",
 			"updated": "2016-07-21T14:57:07+0000",
 			"enabled": true
-		}]`, expectedEmail)
+		}],"page":2,"pageSize":1,"total":3}`, expectedEmail)
 	})
 
 	aliases, err := client.Aliases.Get("example.com", "contact")
@@ -52,13 +55,13 @@ func TestAlias_Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(aliases) != 1 {
-		t.Fatalf("expected: 1 alias, got: %d aliases", len(aliases))
+	if len(aliases.Items) != 1 {
+		t.Fatalf("expected: 1 alias, got: %d aliases", len(aliases.Items))
 	}
 
-	alias := aliases[0]
-	if alias.Email != expectedEmail {
-		t.Fatalf("expected: %v, got: %v", expectedEmail, alias.Email)
+	alias := aliases.Items[0]
+	if alias.Email != expectedEmail || aliases.Page != 2 || aliases.PageSize != 1 || aliases.Total != 3 {
+		t.Fatalf("unexpected recipient page: %+v", aliases)
 	}
 }
 

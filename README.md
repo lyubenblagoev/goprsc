@@ -51,7 +51,7 @@ if err := client.Domains.Create(domainName); err != nil {
 }
 ```
 
-To get a list of all accounts in a domain:
+To get a page of accounts in a domain:
 
 ```go
 
@@ -59,9 +59,20 @@ client := goprsc.DefaultClient
 
 domainName := "example.com"
 
-accounts, err := client.Accounts.List(domainName)
+accountPage, err := client.Accounts.List(domainName)
 if err != nil {
     fmt.Printf("Unable to list accounts for domain %s\n\n", domainName)
+    return err
+}
+
+for _, account := range accountPage.Items {
+    fmt.Println(account.Username)
+}
+
+// Request a specific page when needed. Omitting PaginationOptions uses the
+// server's defaults (page 1 and its configured page size).
+accountPage, err = client.Accounts.List(domainName, goprsc.PaginationOptions{Page: 2, PageSize: 50})
+if err != nil {
     return err
 }
 ```
